@@ -12,6 +12,21 @@ const eventCreateMessage = document.getElementById('eventCreateMessage');
 const eventCreateError = document.getElementById('eventCreateError');
 const eventRegisterError = document.getElementById('eventRegisterError');
 const eventRegisterSuccess = document.getElementById('eventRegisterSuccess');
+const registrationsModal = document.getElementById('registrationsModal');
+const modalEventTitle = document.getElementById('modalEventTitle');
+const modalRegistrations = document.getElementById('modalRegistrations');
+const closeBtn = document.querySelector('.close');
+
+// Modal controls
+closeBtn.addEventListener('click', () => {
+    registrationsModal.classList.add('hidden');
+});
+
+registrationsModal.addEventListener('click', (e) => {
+    if (e.target === registrationsModal) {
+        registrationsModal.classList.add('hidden');
+    }
+});
 
 async function apiFetch(url, options = {}) {
     const config = {
@@ -71,8 +86,17 @@ function renderAdminEvents(events) {
             <div>${event.venue}</div>
             <div>Capacity: ${event.registered} / ${event.capacity}</div>
             <div class="${capacityColor(event.fillPercent)}">Fill: ${event.fillPercent}%</div>
+            <button class="view-registrations" data-event-id="${event.id}" data-event-name="${event.name}">View Registrations (${event.registered})</button>
         </div>
     `).join('');
+    
+    adminEvents.querySelectorAll('.view-registrations').forEach(button => {
+        button.addEventListener('click', () => {
+            const eventId = button.dataset.eventId;
+            const eventName = button.dataset.eventName;
+            viewEventRegistrations(eventId, eventName);
+        });
+    });
 }
 
 function renderStudentEvents(events) {
@@ -86,13 +110,18 @@ function renderStudentEvents(events) {
             <div>${event.venue}</div>
             <div>Capacity: ${event.registered} / ${event.capacity}</div>
             <div>${event.isFull ? '<strong class="full-tag">Full</strong>' : ''}</div>
-            <button ${event.isFull ? 'disabled' : ''} data-event-id="${event.id}">${event.isFull ? 'Full' : 'Register'}</button>
+            <button class="register-btn" ${event.isFull ? 'disabled' : ''} data-event-id="${event.id}" data-event-name="${event.name}">${event.isFull ? 'Full' : 'Register'}</button>
         </div>
     `).join('');
-    studentEvents.querySelectorAll('button[data-event-id]').forEach(button => {
+    studentEvents.querySelectorAll('.register-btn:not(:disabled)').forEach(button => {
         button.addEventListener('click', async () => {
             const eventId = button.dataset.eventId;
-            await registerEvent(eventId);
+            const eventName = button.dataset.eventName;
+            button.disabled = true;
+            button.textContent = 'Registering...';
+            await registerEvent(eventId, eventName);
+            button.disabled = false;
+            button.textContent = 'Register';
         });
     });
 }
@@ -118,21 +147,25 @@ async function loadDashboard() {
         logoutBtn.classList.remove('hidden');
         if (user.role === 'admin') {
             showSection(adminSection);
+            adminEvents.innerHTML = '<p>Loading events...</p>';
             const events = (await apiFetch('/api/events')).events;
             renderAdminEvents(events);
         } else {
             showSection(studentSection);
+            studentEvents.innerHTML = '<p>Loading events...</p>';
             const events = (await apiFetch('/api/events')).events;
             renderStudentEvents(events);
+            myRegistrations.innerHTML = '<p>Loading your registrations...</p>';
             const regs = (await apiFetch('/api/registrations')).registrations;
             renderMyRegistrations(regs);
         }
     } catch (error) {
         showSection(loginSection);
+        loginError.textContent = 'Session expired. Please log in again.';
     }
 }
 
-async function registerEvent(eventId) {
+async function registerEvent(eventId, eventName) {
     eventRegisterError.textContent = '';
     eventRegisterSuccess.textContent = '';
     try {
@@ -140,19 +173,55 @@ async function registerEvent(eventId) {
             method: 'POST',
             body: JSON.stringify({ eventId }),
         });
-        eventRegisterSuccess.textContent = 'Registered successfully.';
+        eventRegisterSuccess.textContent = `Successfully registered for ${eventName}!`;
         await loadDashboard();
     } catch (error) {
         eventRegisterError.textContent = error.message;
     }
 }
 
+async function viewEventRegistrations(eventId, eventName) {
+    modalEventTitle.textContent = `${eventName} - Registrations`;
+    modalRegistrations.innerHTML = '<p>Loading...</p>';
+    registrationsModal.classList.remove('hidden');
+    
+    try {
+        const payload = await apiFetch(`/api/events/${eventId}/registrations`);
+        const registrations = payload.registrations;
+        
+        if (!registrations.length) {
+            modalRegistrations.innerHTML = '<p>No registrations yet.</p>';
+            return;
+        }
+        
+        modalRegistrations.innerHTML = registrations.map(reg => `
+            <div class="registration-item">
+                <strong>${reg.student_name} (${reg.student_username})</strong>
+                <div class="registration-time">Registered: ${new Date(reg.registered_at).toLocaleString()}</div>
+            </div>
+        `).join('');
+    } catch (error) {
+        modalRegistrations.innerHTML = `<p class="error">${error.message}</p>`;
+    }
+}
+
 loginForm.addEventListener('submit', async event => {
     event.preventDefault();
     loginError.textContent = '';
+    
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+    
     try {
-        const username = document.getElementById('username').value;
+        const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            throw new Error('Username and password are required');
+        }
+        
         await apiFetch('/api/login', {
             method: 'POST',
             body: JSON.stringify({ username, password }),
@@ -161,6 +230,8 @@ loginForm.addEventListener('submit', async event => {
         await loadDashboard();
     } catch (error) {
         loginError.textContent = error.message;
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 });
 
@@ -174,21 +245,35 @@ eventForm.addEventListener('submit', async event => {
     event.preventDefault();
     eventCreateMessage.textContent = '';
     eventCreateError.textContent = '';
+    
+    const createBtn = document.getElementById('createEventBtn');
+    const originalText = createBtn.textContent;
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+    
     try {
-        const name = document.getElementById('eventName').value;
+        const name = document.getElementById('eventName').value.trim();
         const date = document.getElementById('eventDate').value;
-        const venue = document.getElementById('eventVenue').value;
+        const venue = document.getElementById('eventVenue').value.trim();
         const capacity = document.getElementById('eventCapacity').value;
+        
+        if (!name || !date || !venue || !capacity) {
+            throw new Error('All fields are required');
+        }
+        
         await apiFetch('/api/events', {
             method: 'POST',
             body: JSON.stringify({ name, date, venue, capacity }),
         });
-        eventCreateMessage.textContent = 'Event created successfully.';
+        eventCreateMessage.textContent = `Event "${name}" created successfully.`;
         eventForm.reset();
         const events = (await apiFetch('/api/events')).events;
         renderAdminEvents(events);
     } catch (error) {
         eventCreateError.textContent = error.message;
+    } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = originalText;
     }
 });
 

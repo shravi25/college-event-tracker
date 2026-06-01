@@ -54,6 +54,11 @@ button {
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
+    transition: background 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+    background: #1d4ed8;
 }
 
 button:disabled {
@@ -66,6 +71,28 @@ button:disabled {
     border-radius: 8px;
     padding: 14px;
     margin-bottom: 12px;
+}
+
+.event-card button {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+}
+
+.view-registrations {
+    background: #8b5cf6;
+}
+
+.view-registrations:hover {
+    background: #7c3aed;
+}
+
+.register-btn {
+    background: #10b981;
+}
+
+.register-btn:hover:not(:disabled) {
+    background: #059669;
 }
 
 .event-row {
@@ -127,4 +154,65 @@ button:disabled {
     background: transparent;
     color: #1f2937;
     border: 1px solid #cbd5e1;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #1f2937;
+}
+
+.close:hover {
+    color: #7f1d1d;
+}
+
+.registration-item {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 0;
+}
+
+.registration-item:last-child {
+    border-bottom: none;
+}
+
+.registration-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.registration-time {
+    font-size: 0.85rem;
+    color: #64748b;
 }

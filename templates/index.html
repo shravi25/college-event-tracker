@@ -34,6 +34,7 @@
         <div id="adminSection" class="hidden">
             <div class="card">
                 <h2>Admin Dashboard</h2>
+                <h3>Create New Event</h3>
                 <form id="eventForm" class="small-form">
                     <label>
                         Event name
@@ -51,14 +52,22 @@
                         Capacity
                         <input type="number" id="eventCapacity" min="1" required />
                     </label>
-                    <button type="submit">Create event</button>
+                    <button type="submit" id="createEventBtn">Create event</button>
                 </form>
                 <div id="eventCreateMessage" class="success"></div>
                 <div id="eventCreateError" class="error"></div>
             </div>
             <div class="card">
-                <h3>All Events</h3>
+                <h3>All Events & Registrations</h3>
                 <div id="adminEvents"></div>
+            </div>
+        </div>
+
+        <div id="registrationsModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalEventTitle">Event Registrations</h2>
+                <div id="modalRegistrations"></div>
             </div>
         </div>
 
