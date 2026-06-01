@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Event Portal</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>College Event Registration</h1>
+            <button id="logoutBtn" class="hidden">Logout</button>
+        </header>
+
+        <div id="loginSection" class="card">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label>
+                    Username
+                    <input type="text" id="username" required />
+                </label>
+                <label>
+                    Password
+                    <input type="password" id="password" required />
+                </label>
+                <button type="submit">Log in</button>
+            </form>
+            <p class="info">Admin: admin / inspirante2026</p>
+            <p class="info">Student: asha.rao / student123</p>
+            <div id="loginError" class="error"></div>
+        </div>
+
+        <div id="adminSection" class="hidden">
+            <div class="card">
+                <h2>Admin Dashboard</h2>
+                <form id="eventForm" class="small-form">
+                    <label>
+                        Event name
+                        <input type="text" id="eventName" required />
+                    </label>
+                    <label>
+                        Date
+                        <input type="date" id="eventDate" required />
+                    </label>
+                    <label>
+                        Venue
+                        <input type="text" id="eventVenue" required />
+                    </label>
+                    <label>
+                        Capacity
+                        <input type="number" id="eventCapacity" min="1" required />
+                    </label>
+                    <button type="submit">Create event</button>
+                </form>
+                <div id="eventCreateMessage" class="success"></div>
+                <div id="eventCreateError" class="error"></div>
+            </div>
+            <div class="card">
+                <h3>All Events</h3>
+                <div id="adminEvents"></div>
+            </div>
+        </div>
+
+        <div id="studentSection" class="hidden">
+            <div class="card">
+                <h2>Upcoming Events</h2>
+                <div id="studentEvents"></div>
+                <div id="eventRegisterError" class="error"></div>
+                <div id="eventRegisterSuccess" class="success"></div>
+            </div>
+            <div class="card">
+                <h3>My Registrations</h3>
+                <div id="myRegistrations"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
