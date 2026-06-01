@@ -1,5 +1,6 @@
 const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
+const loginMessage = document.getElementById('loginMessage');
 const logoutBtn = document.getElementById('logoutBtn');
 const loginSection = document.getElementById('loginSection');
 const adminSection = document.getElementById('adminSection');
@@ -236,7 +237,21 @@ loginForm.addEventListener('submit', async event => {
 });
 
 logoutBtn.addEventListener('click', async () => {
-    await apiFetch('/api/logout', { method: 'POST' });
+    try {
+        await apiFetch('/api/logout', { method: 'POST' });
+    } catch (error) {
+        console.log('insp-err', error);
+    }
+    loginForm.reset();
+    loginError.textContent = '';
+    loginMessage.textContent = 'Logged out successfully.';
+    eventRegisterError.textContent = '';
+    eventRegisterSuccess.textContent = '';
+    eventCreateMessage.textContent = '';
+    eventCreateError.textContent = '';
+    studentEvents.innerHTML = '';
+    myRegistrations.innerHTML = '';
+    adminEvents.innerHTML = '';
     logoutBtn.classList.add('hidden');
     showSection(loginSection);
 });
