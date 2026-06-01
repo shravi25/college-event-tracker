@@ -166,6 +166,11 @@ async function loadDashboard() {
     }
 }
 
+if (sessionStorage.getItem('justLoggedOut') === 'true') {
+    loginMessage.textContent = 'Logged out successfully.';
+    sessionStorage.removeItem('justLoggedOut');
+}
+
 async function registerEvent(eventId, eventName) {
     eventRegisterError.textContent = '';
     eventRegisterSuccess.textContent = '';
@@ -209,6 +214,7 @@ async function viewEventRegistrations(eventId, eventName) {
 loginForm.addEventListener('submit', async event => {
     event.preventDefault();
     loginError.textContent = '';
+    loginMessage.textContent = '';
     
     const submitBtn = loginForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
@@ -239,21 +245,11 @@ loginForm.addEventListener('submit', async event => {
 logoutBtn.addEventListener('click', async () => {
     try {
         await apiFetch('/api/logout', { method: 'POST' });
+        sessionStorage.setItem('justLoggedOut', 'true');
     } catch (error) {
         console.log('insp-err', error);
     }
-    loginForm.reset();
-    loginError.textContent = '';
-    loginMessage.textContent = 'Logged out successfully.';
-    eventRegisterError.textContent = '';
-    eventRegisterSuccess.textContent = '';
-    eventCreateMessage.textContent = '';
-    eventCreateError.textContent = '';
-    studentEvents.innerHTML = '';
-    myRegistrations.innerHTML = '';
-    adminEvents.innerHTML = '';
-    logoutBtn.classList.add('hidden');
-    showSection(loginSection);
+    window.location.reload();
 });
 
 eventForm.addEventListener('submit', async event => {
