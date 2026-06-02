@@ -38,6 +38,12 @@ python app.py
 http://127.0.0.1:4731
 ```
 
+## Database seeding
+
+- The application creates `events.db` automatically on first startup and seeds it with sample students and events.
+- If `events.db` already exists, the app keeps the existing data.
+- To reset and reseed the database, stop the app, delete `events.db`, then restart with `python app.py`.
+
 ## Credentials
 
 Admin:
