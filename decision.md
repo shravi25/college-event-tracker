@@ -1,7 +1,10 @@
-# Decision
+# DECISIONS
 
-## Add database seed instructions to README
+# Why this stack?
+I chose Flask with SQLite because the current repository already used Flask for the backend, and SQLite avoids the need for any external database service during development. This keeps the app lightweight and easier to run locally while still meeting the assignment requirements.
 
-- Decision: Document the app's automatic SQLite database creation and seeding behavior in `README.md`.
-- Rationale: Users need clear setup guidance for how the sample data appears and how to reset the database.
-- Implementation: Added a dedicated "Database seeding" section explaining that `events.db` is created on first run, seeded automatically, and can be reset by deleting `events.db` before restarting the app.
+## One decision not specified in the brief
+I implemented token-based session authentication with a simple SQLite-backed `sessions` table. This provides a clean reusable auth pattern and avoids storing sensitive state in `localStorage`, while keeping the backend stateless enough for this demo.
+
+## One thing I would improve with more time
+I would add stronger session expiry and refresh handling, plus a small admin event deletion flow with confirmation. That would make the app more production-ready while preserving the core student/admin workflows.
